@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 
+const channels = ["channel1", "channel2", "channel3"];
+
 async function loginToChannel() {
   await fetch(
     "http://localhost:3000/api/loginToChannel?channel=channel1",

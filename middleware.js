@@ -13,7 +13,7 @@ export async function middleware(request) {
   );
 
   try {
-    await jwtVerify(cookieOfChannel.value + "h", secret);
+    await jwtVerify(cookieOfChannel.value, secret);
     NextResponse.next();
   } catch (err) {
     const response = new NextResponse(
