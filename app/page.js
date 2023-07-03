@@ -1,30 +1,42 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useDeferredValue,
+} from "react";
 
 const channels = ["channel1", "channel2", "channel3"];
 
 async function loginToChannel() {
-  await fetch(
-    "http://localhost:3000/api/loginToChannel?channel=channel1",
-    {
-      method: "GET",
-      cache: "no-store",
-    }
-  );
+  await fetch("/api/loginToChannel?channel=channel1", {
+    method: "GET",
+    cache: "no-store",
+  });
 }
 
 export default function Home() {
   const [channels, setChannels] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const deferredQuery = useDeferredValue(searchQuery);
+  const searchResult = useMemo(() => {
+    const getData = async () => {
+      await fetch(
+        `/api/searchChannel?query=${
+          encodeURIComponent(searchQuery) ?? ""
+        }`
+      );
+    };
+
+    getData();
+  }, [deferredQuery]);
 
   useEffect(() => {
     async function authoriseChannel(channel, jwt) {
-      const res = await fetch(
-        "http://localhost:3000/api/authoriseChannel",
-        {
-          method: "POST",
-        }
-      );
+      const res = await fetch("/api/authoriseChannel", {
+        method: "POST",
+      });
       const data = await res.json();
       console.log(data);
       if (res.status === 200) {
@@ -47,6 +59,10 @@ export default function Home() {
     }
   }, []);
 
+  function handleChange(e) {
+    setSearchQuery(e.target.value);
+  }
+
   return (
     <div>
       <button
@@ -59,6 +75,14 @@ export default function Home() {
         channels.map((channel) => {
           return <div>{channel}</div>;
         })}
+      <input
+        type="text"
+        onChange={handleChange}
+        className="border-2 border-slate-500"
+      />
+      {/* {searchResult.map((result) => {
+        <div>{result.name}</div>;
+      })} */}
     </div>
   );
 }
